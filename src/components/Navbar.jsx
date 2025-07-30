@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { useCart } from '../context/CartContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { cart } = useCart();
 
   const scrollToSection = (id) => {
-    setIsOpen(false); // fermer le menu mobile si ouvert
+    setIsOpen(false);
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
@@ -20,6 +22,8 @@ const Navbar = () => {
       if (element) element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <nav className="sticky top-0 z-50 bg-black text-white p-4 flex justify-between items-center">
@@ -61,56 +65,28 @@ const Navbar = () => {
         ) : (
           <Link to="/menu" className="hover:text-yellow-400">Menu</Link>
         )}
-        <button
-          onClick={() => scrollToSection('apropos')}
-          className="hover:text-yellow-400 bg-transparent border-none cursor-pointer"
-        >
-          À Propos
-        </button>
-        <button
-          onClick={() => scrollToSection('temoignages')}
-          className="hover:text-yellow-400 bg-transparent border-none cursor-pointer"
-        >
-          Témoignages
-        </button>
-        <button
-          onClick={() => scrollToSection('contact')}
-          className="hover:text-yellow-400 bg-transparent border-none cursor-pointer"
-        >
-          Contact
-        </button>
+        <button onClick={() => scrollToSection('apropos')} className="hover:text-yellow-400">À Propos</button>
+        <button onClick={() => scrollToSection('temoignages')} className="hover:text-yellow-400">Témoignages</button>
+        <button onClick={() => scrollToSection('contact')} className="hover:text-yellow-400">Contact</button>
+        <Link to="/panier" className="hover:text-yellow-400">
+          Panier{totalItems > 0 ? ` (${totalItems})` : ''}
+        </Link>
       </div>
 
       {/* Menu mobile */}
       {isOpen && (
         <div className="absolute top-full left-0 w-full bg-black text-white flex flex-col items-center space-y-4 py-4 md:hidden">
           {location.pathname === '/menu' ? (
-            <Link to="/" onClick={() => setIsOpen(false)} className="hover:text-yellow-400">
-              Accueil
-            </Link>
+            <Link to="/" onClick={() => setIsOpen(false)} className="hover:text-yellow-400">Accueil</Link>
           ) : (
-            <Link to="/menu" onClick={() => setIsOpen(false)} className="hover:text-yellow-400">
-              Menu
-            </Link>
+            <Link to="/menu" onClick={() => setIsOpen(false)} className="hover:text-yellow-400">Menu</Link>
           )}
-          <button
-            onClick={() => scrollToSection('apropos')}
-            className="hover:text-yellow-400 bg-transparent border-none cursor-pointer"
-          >
-            À Propos
-          </button>
-          <button
-            onClick={() => scrollToSection('temoignages')}
-            className="hover:text-yellow-400 bg-transparent border-none cursor-pointer"
-          >
-            Témoignages
-          </button>
-          <button
-            onClick={() => scrollToSection('contact')}
-            className="hover:text-yellow-400 bg-transparent border-none cursor-pointer"
-          >
-            Contact
-          </button>
+          <button onClick={() => scrollToSection('apropos')} className="hover:text-yellow-400">À Propos</button>
+          <button onClick={() => scrollToSection('temoignages')} className="hover:text-yellow-400">Témoignages</button>
+          <button onClick={() => scrollToSection('contact')} className="hover:text-yellow-400">Contact</button>
+          <Link to="/panier" onClick={() => setIsOpen(false)} className="hover:text-yellow-400">
+            Panier{totalItems > 0 ? ` (${totalItems})` : ''}
+          </Link>
         </div>
       )}
     </nav>
