@@ -6,6 +6,36 @@ import { useCart } from '../context/CartContext';
 const Panier = () => {
   const { cart, getTotal, removeFromCart } = useCart();
 
+  const handleCheckout = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/create-checkout-session/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          items: cart.map(item => ({
+            name: `${item.name} (${item.size})`, // pour afficher la taille aussi
+            price: item.price,
+            quantity: item.quantity
+          }))
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url; // redirection vers Stripe Checkout
+      } else {
+        alert("Erreur lors de la création de la session Stripe.");
+      }
+
+    } catch (error) {
+      console.error("Erreur Stripe :", error);
+      alert("Une erreur est survenue. Vérifiez la console.");
+    }
+  };
+
   return (
     <div className="bg-white text-black p-6 max-w-3xl mx-auto min-h-screen">
       <h1 className="text-2xl font-bold mb-6">🛒 Récapitulatif de mon panier</h1>
@@ -34,7 +64,10 @@ const Panier = () => {
             Total : {getTotal()} €
           </div>
 
-          <button className="mt-4 bg-black text-white px-6 py-2 rounded hover:bg-gray-800">
+          <button
+            onClick={handleCheckout}
+            className="mt-4 bg-black text-white px-6 py-2 rounded hover:bg-gray-800"
+          >
             VALIDER MA COMMANDE
           </button>
 
